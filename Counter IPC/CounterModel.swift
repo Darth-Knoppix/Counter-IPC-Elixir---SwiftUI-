@@ -7,10 +7,8 @@
 
 import Foundation
 
-class CounterModel {
-    var value: Int {
-        return 0
-    }
+class CounterModel: ObservableObject {
+    @Published var value: Int = 0;
     
     func increment() {
         
