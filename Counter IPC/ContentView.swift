@@ -18,6 +18,12 @@ struct ContentView: View {
             }
         }
         .padding()
+        .onAppear(perform: {
+            counter.setupConnection()
+        })
+        .onDisappear(perform: {
+            counter.closeConnection()
+        })
     }
 }
 
