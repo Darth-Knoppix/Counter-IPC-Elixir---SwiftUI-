@@ -4,13 +4,13 @@ defmodule CounterIPC do
   def connect(path) do
     {:ok, sck} = :socket.open(:local, :stream, %{})
     :ok = :socket.bind(sck, %{family: :local, path: path})
-    File.chmod!(path, 0o600)
+    File.chmod!(path, 0o777)
     :ok = :socket.listen(sck)
 
     accept(sck)
   rescue
     _e in ErlangError ->
-      Logger.error("Something wenr wrong during connection.")
+      Logger.error("Something went wrong during connection.")
   end
 
   def accept(socket) do
@@ -29,10 +29,12 @@ defmodule CounterIPC do
       "increment()" ->
         Logger.info("Increment count")
         Counter.increment()
+        write(Integer.to_string(Counter.value()), socket)
 
       "decrement()" ->
         Logger.info("Decrement count")
         Counter.decrement()
+        write(Integer.to_string(Counter.value()), socket)
 
       "value" ->
         Logger.info("Get current count")
@@ -76,7 +78,7 @@ defmodule CounterIPC do
 end
 
 Counter.start_link(0)
-socketname = System.get_env("HOME") <> "/.test-ipc.sock"
+socketname = "/tmp/.test-ipc.sock"
 File.rm(socketname)
 IO.puts("Listening on #{socketname}")
 CounterIPC.connect(socketname)
